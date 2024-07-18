@@ -1,73 +1,90 @@
-import React, { useState, useEffect } from 'react';
-import ReactMapGL, { Marker, Popup } from 'react-map-gl';
+import React, { useState, useEffect } from "react";
+import Map, { Marker, Popup } from "react-map-gl";
 
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoiam9zaHVhbmV3ZSIsImEiOiJjbGhwbno2cjgwNTUyM2lvNnJxbTNra3RkIn0.NhGO8kfTufmrBgGMf5QE2Q'; // Replace with your Mapbox token
+const MAPBOX_TOKEN =
+	"pk.eyJ1Ijoiam9zaHVhbmV3ZSIsImEiOiJjbHlyNWlnNTMwM2ZrMmpvaTdjYnR1Y2M5In0.cPs-Jxueeo6tNBkbNFy1HA"; // Replace with your Mapbox token
 
 const MapView = () => {
-  const [viewport, setViewport] = useState({
-    latitude: 40.7128,
-    longitude: -74.0060,
-    zoom: 10
-  });
-  const [selectedClimb, setSelectedClimb] = useState(null);
-  const [climbs, setClimbs] = useState([]);
+	const [viewport, setViewport] = useState({
+		latitude: 40.7128,
+		longitude: -74.006,
+		zoom: 10,
+	});
+	const [selectedClimb, setSelectedClimb] = useState(null);
+	const [climbs, setClimbs] = useState([]);
 
-  useEffect(() => {
-    // Mock API call to fetch climbs
-    const fetchClimbs = async () => {
-      // In a real app, this would be an API call
-      const mockClimbs = [
-        { id: 1, name: 'Climb 1', latitude: 40.7128, longitude: -74.0060, grade: '5.10a', stars: 4 },
-        { id: 2, name: 'Climb 2', latitude: 40.7228, longitude: -74.0160, grade: '5.11b', stars: 3 },
-      ];
-      setClimbs(mockClimbs);
-    };
+	useEffect(() => {
+		// Mock API call to fetch climbs
+		const fetchClimbs = async () => {
+			// In a real app, this would be an API call
+			const mockClimbs = [
+				{
+					id: 1,
+					name: "Climb 1",
+					latitude: 40.7128,
+					longitude: -74.006,
+					grade: "5.10a",
+					stars: 4,
+				},
+				{
+					id: 2,
+					name: "Climb 2",
+					latitude: 40.7228,
+					longitude: -74.016,
+					grade: "5.11b",
+					stars: 3,
+				},
+			];
+			setClimbs(mockClimbs);
+		};
 
-    fetchClimbs();
-  }, []);
+		fetchClimbs();
+	}, []);
 
-  return (
-    <ReactMapGL
-      {...viewport}
-      width="100%"
-      height="70vh"
-      mapStyle="mapbox://styles/mapbox/outdoors-v11"
-      onViewportChange={nextViewport => setViewport(nextViewport)}
-      mapboxApiAccessToken={MAPBOX_TOKEN}
-    >
-      {climbs.map(climb => (
-        <Marker 
-          key={climb.id} 
-          latitude={climb.latitude} 
-          longitude={climb.longitude}
-        >
-          <button
-            className="marker-btn"
-            onClick={e => {
-              e.preventDefault();
-              setSelectedClimb(climb);
-            }}
-          >
-            📍
-          </button>
-        </Marker>
-      ))}
+	return (
+		<Map
+			mapboxAccessToken={MAPBOX_TOKEN}
+			initialViewState={{
+				longitude: -122.4,
+				latitude: 37.8,
+				zoom: 14,
+			}}
+			style={{ width: 600, height: 400 }}
+			mapStyle="mapbox://styles/mapbox/streets-v9"
+		>
+			{climbs.map((climb) => (
+				<Marker
+					key={climb.id}
+					latitude={climb.latitude}
+					longitude={climb.longitude}
+				>
+					<button
+						className="marker-btn"
+						onClick={(e) => {
+							e.preventDefault();
+							setSelectedClimb(climb);
+						}}
+					>
+						📍
+					</button>
+				</Marker>
+			))}
 
-      {selectedClimb && (
-        <Popup
-          latitude={selectedClimb.latitude}
-          longitude={selectedClimb.longitude}
-          onClose={() => setSelectedClimb(null)}
-        >
-          <div>
-            <h2>{selectedClimb.name}</h2>
-            <p>Grade: {selectedClimb.grade}</p>
-            <p>Stars: {selectedClimb.stars}</p>
-          </div>
-        </Popup>
-      )}
-    </ReactMapGL>
-  );
+			{selectedClimb && (
+				<Popup
+					latitude={selectedClimb.latitude}
+					longitude={selectedClimb.longitude}
+					onClose={() => setSelectedClimb(null)}
+				>
+					<div>
+						<h2>{selectedClimb.name}</h2>
+						<p>Grade: {selectedClimb.grade}</p>
+						<p>Stars: {selectedClimb.stars}</p>
+					</div>
+				</Popup>
+			)}
+		</Map>
+	);
 };
 
 export default MapView;
