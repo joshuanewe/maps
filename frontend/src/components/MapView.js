@@ -31,6 +31,8 @@ const MapView = () => {
 					},
 					properties: {
 						id: climb.id,
+						name: climb.name,
+						difficulty: climb.difficulty,
 						...climb,
 					},
 				}));
@@ -58,10 +60,23 @@ const MapView = () => {
 				viewport.longitude + viewport.zoom / 2,
 				viewport.latitude + viewport.zoom / 2,
 			];
-			const clusters = cluster.getClusters(bounds, viewport.zoom);
+			const clusters = cluster.getClusters(bounds, Math.round(viewport.zoom));
 			setClusteredPoints(clusters);
 		}
 	}, [viewport, cluster]);
+
+	const handleClusterClick = (clusterId, longitude, latitude) => {
+		const expansionZoom = Math.min(
+			cluster.getClusterExpansionZoom(clusterId),
+			20
+		);
+		setViewport({
+			...viewport,
+			longitude,
+			latitude,
+			zoom: expansionZoom,
+		});
+	};
 
 	return (
 		<div className="map-container">
@@ -70,25 +85,30 @@ const MapView = () => {
 				initialViewState={viewport}
 				style={{ width: "100%", height: "100vh" }} // Adjust size as needed
 				mapStyle="mapbox://styles/mapbox/streets-v9"
-				onViewportChange={(nextViewport) => setViewport(nextViewport)}
+				onMove={(evt) => setViewport(evt.viewState)}
 			>
 				{clusteredPoints.map((point) => {
 					const [longitude, latitude] = point.geometry.coordinates;
-					const { point_count: pointCount, id } = point.properties;
+					const {
+						cluster: isCluster,
+						point_count: pointCount,
+						id,
+					} = point.properties;
+
 					return (
 						<Marker key={id} latitude={latitude} longitude={longitude}>
 							<button
 								className="marker-btn"
 								onClick={(e) => {
 									e.preventDefault();
-									if (pointCount > 1) {
-										// Handle cluster click to zoom in or show more details
+									if (isCluster) {
+										handleClusterClick(point.id, longitude, latitude);
 									} else {
 										setSelectedClimb(point.properties);
 									}
 								}}
 							>
-								{pointCount > 1 ? `${pointCount} climbs` : "📍"}
+								{isCluster ? `${pointCount} climbs` : "📍"}
 							</button>
 						</Marker>
 					);
