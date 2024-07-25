@@ -55,10 +55,10 @@ const MapView = () => {
 		// Update clusters when viewport changes
 		if (cluster) {
 			const bounds = [
-				viewport.longitude - viewport.zoom / 2,
-				viewport.latitude - viewport.zoom / 2,
-				viewport.longitude + viewport.zoom / 2,
-				viewport.latitude + viewport.zoom / 2,
+				viewport.longitude - 360 / Math.pow(2, viewport.zoom),
+				viewport.latitude - 180 / Math.pow(2, viewport.zoom),
+				viewport.longitude + 360 / Math.pow(2, viewport.zoom),
+				viewport.latitude + 180 / Math.pow(2, viewport.zoom),
 			];
 			const clusters = cluster.getClusters(bounds, Math.round(viewport.zoom));
 			setClusteredPoints(clusters);
@@ -78,12 +78,22 @@ const MapView = () => {
 		});
 	};
 
+	const handleSearchSelect = (climb) => {
+		setSelectedClimb(climb);
+		setViewport({
+			...viewport,
+			longitude: climb.longitude,
+			latitude: climb.latitude,
+			zoom: 14,
+		});
+	};
+
 	return (
 		<div className="map-container">
 			<Map
 				mapboxAccessToken={MAPBOX_TOKEN}
 				initialViewState={viewport}
-				style={{ width: "100%", height: "100vh" }} // Adjust size as needed
+				style={{ width: "100%", height: "90vh" }} // Adjust size as needed
 				mapStyle="mapbox://styles/mapbox/streets-v9"
 				onMove={(evt) => setViewport(evt.viewState)}
 			>
@@ -129,7 +139,7 @@ const MapView = () => {
 				)}
 			</Map>
 			<div className="search-container">
-				<Search />
+				<Search onSelect={handleSearchSelect} />
 			</div>
 		</div>
 	);

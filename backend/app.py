@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -41,6 +41,35 @@ def get_climbs():
         'latitude': climb.latitude,
         'longitude': climb.longitude,
     } for climb in climbs])
+
+@app.route('/search', methods=['GET'])
+def search_climbs():
+    query = request.args.get('query')
+    if not query:
+        return jsonify([])
+    climbs = Climb.query.filter(
+        (Climb.name.ilike(f'%{query}%')) |
+        (Climb.area.ilike(f'%{query}%')) |
+        (Climb.difficulty.ilike(f'%{query}%'))
+    ).all()
+
+    results = []
+    for climb in climbs:
+        results.append({
+            'id': climb.id,
+            'name': climb.name,
+            'area': climb.area,
+            'url': climb.url,
+            'star_rating': climb.star_rating,
+            'personal_rating': climb.personal_rating,
+            'climb_type': climb.climb_type,
+            'difficulty': climb.difficulty,
+            'pitches': climb.pitches,
+            'latitude': climb.latitude,
+            'longitude': climb.longitude,
+        })
+
+    return jsonify(results)
 
 if __name__ == '__main__':
     app.run(debug=True)

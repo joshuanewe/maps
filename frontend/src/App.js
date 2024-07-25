@@ -6,7 +6,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 import Home from "./components/Home";
 import MapView from "./components/MapView";
-import Search from "./components/Search";
 import Profile from "./components/Profile";
 
 function App() {
@@ -29,9 +28,6 @@ function App() {
 								<Nav.Link as={Link} to="/map">
 									Map
 								</Nav.Link>
-								<Nav.Link as={Link} to="/search">
-									Search
-								</Nav.Link>
 								{user && (
 									<Nav.Link as={Link} to="/profile">
 										Profile
@@ -46,7 +42,6 @@ function App() {
 					<Routes>
 						<Route path="/" element={<Home />} />
 						<Route path="/map" element={<MapView />} />
-						<Route path="/search" element={<Search />} />
 						<Route path="/profile" element={<Profile />} />
 					</Routes>
 				</Container>

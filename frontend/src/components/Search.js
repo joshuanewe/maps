@@ -1,45 +1,46 @@
-import React, { useState } from 'react';
-import { Form, Button, ListGroup } from 'react-bootstrap';
+import React, { useState } from "react";
+import axios from "axios";
 
-const Search = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+const Search = ({ onSelect }) => {
+	const [query, setQuery] = useState("");
+	const [results, setResults] = useState([]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // Mock search functionality
-    const mockResults = [
-      { id: 1, name: 'Climb 1', grade: '5.10a' },
-      { id: 2, name: 'Climb 2', grade: '5.11b' },
-    ].filter(climb => climb.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    setSearchResults(mockResults);
-  };
+	const handleSearch = async () => {
+		if (!query) return;
+		try {
+			const response = await axios.get(
+				`http://localhost:5000/search?query=${query}`
+			);
+			setResults(response.data);
+		} catch (error) {
+			console.error("Error searching climbs:", error);
+		}
+	};
 
-  return (
-    <div>
-      <Form onSubmit={handleSearch}>
-        <Form.Group>
-          <Form.Control
-            type="text"
-            placeholder="Search for climbs"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </Form.Group>
-        <Button variant="primary" type="submit">
-          Search
-        </Button>
-      </Form>
+	const handleSelect = (climb) => {
+		onSelect(climb);
+		setQuery("");
+		setResults([]);
+	};
 
-      <ListGroup className="mt-3">
-        {searchResults.map(climb => (
-          <ListGroup.Item key={climb.id}>
-            {climb.name} - Grade: {climb.grade}
-          </ListGroup.Item>
-        ))}
-      </ListGroup>
-    </div>
-  );
+	return (
+		<div className="search">
+			<input
+				type="text"
+				value={query}
+				onChange={(e) => setQuery(e.target.value)}
+				placeholder="Search for climbs..."
+			/>
+			<button onClick={handleSearch}>Search</button>
+			<ul>
+				{results.map((climb) => (
+					<li key={climb.id} onClick={() => handleSelect(climb)}>
+						{climb.name} - {climb.difficulty} - {climb.location}
+					</li>
+				))}
+			</ul>
+		</div>
+	);
 };
 
 export default Search;
