@@ -44,15 +44,27 @@ def get_climbs():
 
 @app.route('/search', methods=['GET'])
 def search_climbs():
-    query = request.args.get('query')
-    if not query:
-        return jsonify([])
-    climbs = Climb.query.filter(
-        (Climb.name.ilike(f'%{query}%')) |
-        (Climb.area.ilike(f'%{query}%')) |
-        (Climb.difficulty.ilike(f'%{query}%'))
-    ).all()
-
+    query = request.args.get('query', '')
+    difficulty = request.args.get('difficulty', '')
+    area = request.args.get('area', '')
+    
+    climbs_query = Climb.query
+    
+    if query:
+        climbs_query = climbs_query.filter(
+            (Climb.name.ilike(f'%{query}%')) |
+            (Climb.area.ilike(f'%{query}%')) |
+            (Climb.difficulty.ilike(f'%{query}%'))
+        )
+    
+    if difficulty:
+        climbs_query = climbs_query.filter(Climb.difficulty.ilike(f'%{difficulty}%'))
+    
+    if area:
+        climbs_query = climbs_query.filter(Climb.area.ilike(f'%{area}%'))
+    
+    climbs = climbs_query.all()
+    
     results = []
     for climb in climbs:
         results.append({
